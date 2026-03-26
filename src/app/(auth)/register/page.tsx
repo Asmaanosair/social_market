@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,6 @@ import {
 } from "@/components/ui/card";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +27,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      // Step 1: Register
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,22 +42,22 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto sign in after registration
+      // Step 2: Auto sign in after registration
       const signInResult = await signIn("credentials", {
         email,
         password,
         redirect: false,
       });
 
-      if (signInResult?.error) {
-        setError("Account created. Please sign in.");
-        router.push("/login");
+      if (signInResult?.ok) {
+        // Use window.location for full page reload to pick up session
+        window.location.href = "/dashboard";
       } else {
-        router.push("/dashboard");
+        // Account created but auto-login failed, redirect to login
+        window.location.href = "/login";
       }
     } catch {
       setError("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   }

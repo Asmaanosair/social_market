@@ -2,7 +2,6 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -18,42 +17,44 @@ import {
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const urlError = searchParams.get("error");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(urlError ? getErrorMessage(urlError) : "");
+  const [error, setError] = useState(
+    urlError === "OAuthAccountNotLinked"
+      ? "This email is already linked to another account."
+      : urlError === "CredentialsSignin"
+        ? "Invalid email or password."
+        : urlError
+          ? "An error occurred during sign in. Please try again."
+          : ""
+  );
   const [loading, setLoading] = useState(false);
-
-  function getErrorMessage(code: string) {
-    switch (code) {
-      case "OAuthAccountNotLinked":
-        return "This email is already linked to another account.";
-      case "CredentialsSignin":
-        return "Invalid email or password.";
-      default:
-        return "An error occurred during sign in. Please try again.";
-    }
-  }
 
   async function handleCredentialsLogin(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (result?.error) {
-      setError("Invalid email or password.");
+      if (result?.ok) {
+        // Use window.location for full page reload to pick up session
+        window.location.href = callbackUrl;
+      } else {
+        setError("Invalid email or password.");
+        setLoading(false);
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
       setLoading(false);
-    } else {
-      router.push(callbackUrl);
     }
   }
 
