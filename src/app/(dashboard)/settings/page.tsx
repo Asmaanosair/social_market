@@ -5,7 +5,8 @@ import { trpc } from "@/lib/trpc/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Check, Shield } from "lucide-react";
+import { Loader2, Check, Shield, Link2, Users, CreditCard } from "lucide-react";
+import Link from "next/link";
 
 export default function SettingsPage() {
   const { data: user, isLoading } = trpc.user.me.useQuery();
@@ -36,6 +37,48 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-neutral-900">Settings</h1>
         <p className="text-sm text-neutral-500 mt-1">Manage your account settings</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Link href="/settings/accounts" className="block">
+          <Card className="hover:border-neutral-300 transition-colors cursor-pointer h-full">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Link2 className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Connected Accounts</p>
+                <p className="text-xs text-neutral-500">Manage platforms</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/settings/team" className="block">
+          <Card className="hover:border-neutral-300 transition-colors cursor-pointer h-full">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <Users className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Team</p>
+                <p className="text-xs text-neutral-500">Manage members</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/settings/billing" className="block">
+          <Card className="hover:border-neutral-300 transition-colors cursor-pointer h-full">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <CreditCard className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Billing</p>
+                <p className="text-xs text-neutral-500">Plans & payments</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       <Card>

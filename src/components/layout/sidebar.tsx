@@ -9,6 +9,7 @@ import {
   ListOrdered,
   BarChart3,
   Settings,
+  Link2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/ui.store";
@@ -20,6 +21,7 @@ const navItems = [
   { href: "/queue", label: "Queue", icon: ListOrdered },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/settings/accounts", label: "Connected Accounts", icon: Link2 },
 ];
 
 export function Sidebar() {
