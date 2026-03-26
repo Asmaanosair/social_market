@@ -90,7 +90,7 @@ export const accountRouter = router({
             : null,
           tokenExpiresAt: tokenResponse.expiresAt,
           status: "CONNECTED",
-          scopes: [],
+          scopes: "[]",
         },
         select: {
           id: true,
@@ -107,7 +107,7 @@ export const accountRouter = router({
           action: "CONNECT_PLATFORM",
           entity: "ConnectedPlatform",
           entityId: account.id,
-          metadata: { platform: input.platform },
+          metadata: JSON.stringify({ platform: input.platform }),
         },
       });
 
@@ -159,7 +159,7 @@ export const accountRouter = router({
           action: "DISCONNECT_PLATFORM",
           entity: "ConnectedPlatform",
           entityId: input.accountId,
-          metadata: { platform: account.platform },
+          metadata: JSON.stringify({ platform: account.platform }),
         },
       });
 

@@ -79,7 +79,7 @@ export class PublishService {
             platformPostId: result.platformPostId,
             publishedAt: result.success ? new Date() : null,
             errorMessage: result.error,
-            platformResponse: result as any,
+            platformResponse: JSON.stringify(result),
           },
         });
 

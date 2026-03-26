@@ -110,7 +110,7 @@ export const teamRouter = router({
           action: "CREATE_TEAM",
           entity: "Team",
           entityId: team.id,
-          metadata: { name: input.name, slug: input.slug },
+          metadata: JSON.stringify({ name: input.name, slug: input.slug }),
         },
       });
 
@@ -183,7 +183,7 @@ export const teamRouter = router({
           action: "INVITE_TEAM_MEMBER",
           entity: "TeamMember",
           entityId: member.id,
-          metadata: { invitedEmail: input.email, role: input.role },
+          metadata: JSON.stringify({ invitedEmail: input.email, role: input.role }),
         },
       });
 
