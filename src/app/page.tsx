@@ -1,65 +1,77 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex min-h-screen flex-col">
+      <header className="border-b border-neutral-200">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-neutral-900 flex items-center justify-center text-white font-bold text-sm">
+              SM
+            </div>
+            <span className="font-semibold text-lg">Social Market</span>
+          </div>
+          <nav className="flex items-center gap-4">
+            <Link href="/login">
+              <Button variant="ghost">Log in</Button>
+            </Link>
+            <Link href="/register">
+              <Button>Get Started</Button>
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <main className="flex-1">
+        <section className="container mx-auto px-4 py-24 text-center">
+          <h1 className="text-5xl font-bold tracking-tight text-neutral-900 sm:text-6xl">
+            Your Social Media
+            <br />
+            <span className="text-neutral-500">Command Center</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-neutral-600">
+            Manage all your social media accounts from one powerful dashboard.
+            Schedule posts, track analytics, and grow your audience across
+            X, TikTok, Instagram, Facebook, and Snapchat.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          <div className="mt-10 flex items-center justify-center gap-4">
+            <Link href="/register">
+              <Button size="lg">Start Free Trial</Button>
+            </Link>
+            <Link href="#features">
+              <Button variant="outline" size="lg">Learn More</Button>
+            </Link>
+          </div>
+        </section>
+
+        <section id="features" className="border-t border-neutral-200 bg-neutral-50 py-24">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">Everything you need</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { title: "Unified Publishing", description: "Create once, publish everywhere. Customize content per platform with smart character limits and media validation." },
+                { title: "Smart Scheduling", description: "Visual content calendar with drag-and-drop scheduling. Queue posts for optimal engagement times." },
+                { title: "Analytics Dashboard", description: "Track performance across all platforms with unified metrics, trend charts, and exportable reports." },
+                { title: "Team Collaboration", description: "Role-based access control with approval workflows. Manage your team with ease." },
+                { title: "Media Management", description: "Upload, organize, and optimize images and videos. Automatic format conversion for each platform." },
+                { title: "Platform Adapters", description: "Native integration with X, TikTok, Instagram, Facebook, and Snapchat APIs." },
+              ].map((feature) => (
+                <div key={feature.title} className="rounded-xl border border-neutral-200 bg-white p-6">
+                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-sm text-neutral-600">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
+
+      <footer className="border-t border-neutral-200 py-8">
+        <div className="container mx-auto px-4 text-center text-sm text-neutral-500">
+          &copy; {new Date().getFullYear()} Social Market. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 }

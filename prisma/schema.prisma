@@ -1,0 +1,278 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  TEAM_MANAGER
+  CONTENT_CREATOR
+  ANALYST
+}
+
+enum PlatformType {
+  X
+  TIKTOK
+  INSTAGRAM
+  FACEBOOK
+  SNAPCHAT
+}
+
+enum PlatformConnectionStatus {
+  CONNECTED
+  DISCONNECTED
+  EXPIRED
+  ERROR
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  QUEUED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  PARTIALLY_PUBLISHED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  GIF
+}
+
+// ──── NextAuth Models ────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(CONTENT_CREATOR)
+  mfaEnabled    Boolean   @default(false)
+  mfaSecret     String?
+
+  accounts           Account[]
+  sessions           Session[]
+  connectedPlatforms ConnectedPlatform[]
+  posts              Post[]
+  teamMemberships    TeamMember[]
+  ownedTeams         Team[]              @relation("TeamOwner")
+  auditLogs          AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// ──── Platform Connection ────
+
+model ConnectedPlatform {
+  id                String                   @id @default(cuid())
+  userId            String
+  platform          PlatformType
+  platformUserId    String
+  displayName       String
+  avatarUrl         String?
+  status            PlatformConnectionStatus @default(CONNECTED)
+  encryptedAccessToken  String?
+  encryptedRefreshToken String?
+  tokenExpiresAt    DateTime?
+  scopes            String[]
+  metadata          Json?
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postPlatforms PostPlatform[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, platform, platformUserId])
+  @@index([userId])
+  @@index([platform])
+}
+
+// ──── Content Models ────
+
+model Post {
+  id          String     @id @default(cuid())
+  userId      String
+  title       String?
+  content     String
+  status      PostStatus @default(DRAFT)
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  metadata    Json?
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platforms PostPlatform[]
+  media     MediaAsset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model PostPlatform {
+  id                  String       @id @default(cuid())
+  postId              String
+  connectedPlatformId String
+  platformPostId      String?
+  customContent       String?
+  status              PostStatus   @default(DRAFT)
+  publishedAt         DateTime?
+  errorMessage        String?
+  platformResponse    Json?
+
+  post              Post              @relation(fields: [postId], references: [id], onDelete: Cascade)
+  connectedPlatform ConnectedPlatform @relation(fields: [connectedPlatformId], references: [id])
+  analyticsSnapshots AnalyticsSnapshot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([postId, connectedPlatformId])
+  @@index([postId])
+  @@index([connectedPlatformId])
+  @@index([status])
+}
+
+model MediaAsset {
+  id           String    @id @default(cuid())
+  postId       String?
+  url          String
+  key          String
+  type         MediaType
+  mimeType     String
+  size         Int
+  width        Int?
+  height       Int?
+  duration     Float?
+  thumbnailUrl String?
+
+  post Post? @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+}
+
+// ──── Analytics ────
+
+model AnalyticsSnapshot {
+  id              String   @id @default(cuid())
+  postPlatformId  String
+  impressions     Int      @default(0)
+  reach           Int      @default(0)
+  engagements     Int      @default(0)
+  likes           Int      @default(0)
+  comments        Int      @default(0)
+  shares          Int      @default(0)
+  saves           Int      @default(0)
+  clicks          Int      @default(0)
+  videoViews      Int?
+  watchTime       Float?
+
+  postPlatform PostPlatform @relation(fields: [postPlatformId], references: [id], onDelete: Cascade)
+
+  collectedAt DateTime @default(now())
+
+  @@index([postPlatformId])
+  @@index([collectedAt])
+}
+
+// ──── Team Management ────
+
+model Team {
+  id      String @id @default(cuid())
+  name    String
+  slug    String @unique
+  ownerId String
+
+  owner   User         @relation("TeamOwner", fields: [ownerId], references: [id])
+  members TeamMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TeamMember {
+  id     String   @id @default(cuid())
+  teamId String
+  userId String
+  role   UserRole @default(CONTENT_CREATOR)
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  joinedAt DateTime @default(now())
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+// ──── Audit Log ────
+
+model AuditLog {
+  id       String @id @default(cuid())
+  userId   String
+  action   String
+  entity   String
+  entityId String?
+  metadata Json?
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
